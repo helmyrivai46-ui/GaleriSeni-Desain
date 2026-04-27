@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galeri Seni & Desain</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; color: #333; }
+
+    .header { background: linear-gradient(135deg, #2c3e50, #3498db); color: white; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .header h1 { font-size: 1.8em; }
+    .header .subtitle { font-size: 0.9em; opacity: 0.9; margin-top: 5px; }
+
+    .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+    .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; }
+    .card h2 { border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 15px; }
+
+    .filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-btn { padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; background: #ddd; transition: all 0.3s; }
+    .filter-btn.active { background: #3498db; color: white; }
+    .filter-btn:hover { background: #2980b9; color: white; }
+
+    .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .product { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s; }
+    .product:hover { transform: translateY(-5px); }
+    .product img { width: 100%; height: 200px; object-fit: cover; background: #eee; }
+    .product-info { padding: 15px; }
+    .product-name { font-size: 1.1em; font-weight: bold; margin-bottom: 5px; }
+    .product-category { font-size: 0.85em; color: #7f8c8d; background: #ecf0f1; padding: 3px 8px; border-radius: 4px; display: inline-block; margin-bottom: 8px; }
+    .product-price { font-size: 1.2em; color: #27ae60; font-weight: bold; margin-bottom: 10px; }
+    .product-desc { font-size: 0.9em; color: #666; margin-bottom: 10px; line-height: 1.4; }
+    .floor-plan { margin-top: 10px; padding: 10px; background: #f9f9f9; border-radius: 4px; border: 1px dashed #ccc; }
+    .floor-plan small { color: #7f8c8d; }
+    .floor-plan img { width: 100%; max-height: 180px; object-fit: contain; margin-top: 5px; border-radius: 4px; }
+
+    .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1em; display: inline-block; text-decoration: none; text-align: center; }
+    .btn-primary { background: #3498db; color: white; }
+    .btn-primary:hover { background: #2980b9; }
+    .btn-success { background: #27ae60; color: white; }
+    .btn-success:hover { background: #1e8449; }
+    .btn-whatsapp { background: #25d366; color: white; }
+    .btn-whatsapp:hover { background: #1da851; }
+
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; padding: 30px; border-radius: 8px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .modal h2 { margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1em; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+    .empty-state { text-align: center; padding: 40px; color: #7f8c8d; }
+    .empty-state h3 { margin-bottom: 10px; }
+
+    .contact-info { background: #e8f5e9; border: 2px solid #27ae60; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+    .contact-info h3 { color: #27ae60; margin-bottom: 15px; }
+    .contact-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #ddd; }
+    .contact-item:last-child { border-bottom: none; }
+    .contact-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5em; }
+    .contact-icon.dana { background: #f5f5f5; }
+    .contact-icon.bank { background: #f5f5f5; }
+    .contact-icon.whatsapp { background: #25d366; color: white; }
+    .contact-icon.phone { background: #3498db; color: white; }
+
+    .order-summary { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .order-summary h4 { margin-bottom: 10px; }
+    .order-summary-item { display: flex; justify-content: space-between; padding: 5px 0; }
+    .order-total { border-top: 2px solid #333; margin-top: 10px; padding-top: 10px; font-weight: bold; font-size: 1.2em; }
+
+    .whatsapp-btn { display: block; width: 100%; padding: 15px; font-size: 1.1em; background: #25d366; color: white; border: none; border-radius: 8px; cursor: pointer; text-align: center; text-decoration: none; }
+    .whatsapp-btn:hover { background: #1da851; }
+
+    .admin-link { position: fixed; bottom: 20px; right: 20px; font-size: 0.8em; }
+    .admin-link a { color: #7f8c8d; text-decoration: none; }
+
+    /* Lightbox for full image view */
+    .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; }
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 95%; max-height: 85vh; object-fit: contain; border-radius: 8px; }
+    .lightbox-close { position: absolute; top: 20px; right: 30px; color: white; font-size: 2em; cursor: pointer; background: none; border: none; }
+    .lightbox-close:hover { color: #3498db; }
+    .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); color: white; font-size: 3em; cursor: pointer; background: none; border: none; padding: 20px; }
+    .lightbox-nav:hover { color: #3498db; }
+    .lightbox-nav.prev { left: 20px; }
+    .lightbox-nav.next { right: 20px; }
+    .lightbox-title { color: white; margin-top: 15px; font-size: 1.2em; text-align: center; padding: 0 20px; }
+
+    .product img { cursor: pointer; }
+    .click-hint { font-size: 0.75em; color: #7f8c8d; margin-top: 5px; }
+    .product-image-container { position: relative; }
+    .image-count-badge { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8em; }
+    .image-thumbnails-row { background: #f9f9f9; border-top: 1px solid #eee; }
+
+    @media (max-width: 768px) {
+      .products { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>Galeri Seni & Desain</h1>
+    <div class="subtitle">Lukisan, Desain Interior & Bangunan</div>
+  </header>
+
+  <div class="container">
+    <!-- Kontak & Pembayaran -->
+    <div class="contact-info">
+      <h3>Hubungi Kami untuk Pemesanan</h3>
+      <div class="contact-item">
+        <div class="contact-icon whatsapp">&#9743;</div>
+        <div>
+          <strong>WhatsApp</strong><br>
+          0858-8592-7919
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon dana">D</div>
+        <div>
+          <strong>DANA</strong><br>
+          0858-8592-7919 (Atas Nama: Toko Galeri)
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon bank">&#8381;</div>
+        <div>
+          <strong>Bank jago</strong><br>
+          1069-0522-9758 (Atas Nama: Helmy rivai)
+        </div>
+      </div>
+    </div>
+
+    <!-- Katalog -->
+    <div class="card">
+      <h2>Katalog Produk</h2>
+      <div class="filters">
+        <button class="filter-btn active" onclick="filterProducts('all')">Semua</button>
+        <button class="filter-btn" onclick="filterProducts('lukisan')">Lukisan</button>
+        <button class="filter-btn" onclick="filterProducts('interior')">Desain Interior</button>
+        <button class="filter-btn" onclick="filterProducts('bangunan')">Desain Bangunan</button>
+      </div>
+      <div class="products" id="product-list"></div>
+    </div>
+  </div>
+
+  <!-- Modal Pembelian -->
+  <div id="purchase-modal" class="modal">
+    <div class="modal-content">
+      <h2>Form Pemesanan</h2>
+      <input type="hidden" id="purchase-product-id">
+      <input type="hidden" id="purchase-product-name">
+      <input type="hidden" id="purchase-product-price">
+
+      <div class="order-summary" id="order-summary">
+        <h4>Ringkasan Pesanan</h4>
+        <div class="order-summary-item">
+          <span id="summary-name">-</span>
+          <span id="summary-price">-</span>
+        </div>
+        <div class="order-summary-item">
+          <span>Jumlah</span>
+          <span id="summary-qty">1</span>
+        </div>
+        <div class="order-total">
+          <span>Total</span>
+          <span id="summary-total">-</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Nama Lengkap</label>
+        <input type="text" id="buyer-name" placeholder="Masukkan nama Anda" required>
+      </div>
+      <div class="form-group">
+        <label>Alamat Pengiriman</label>
+        <textarea id="buyer-address" placeholder="Masukkan alamat lengkap" required></textarea>
+      </div>
+      <div class="form-group">
+        <label>No. WhatsApp / HP</label>
+        <input type="tel" id="buyer-phone" placeholder="08xx-xxxx-xxxx" required>
+      </div>
+      <div class="form-group">
+        <label>Jumlah Pesanan</label>
+        <input type="number" id="purchase-quantity" value="1" min="1" onchange="updateSummary()">
+      </div>
+
+      <div style="background:#e8f5e9;padding:15px;border-radius:8px;margin-bottom:15px;">
+        <h4 style="margin-bottom:10px;">&#9983; Cara Pembayaran:</h4>
+        <p style="font-size:0.9em;">1. Isi form pesanan di atas</p>
+        <p style="font-size:0.9em;">2. Klik tombol "Pesan via WhatsApp" di bawah</p>
+        <p style="font-size:0.9em;">3. Kami akan konfirmasi via WhatsApp</p>
+        <p style="font-size:0.9em;">4. Transfer ke DANA/Bank sesuai total</p>
+      </div>
+
+      <button class="whatsapp-btn" onclick="submitPurchase()">
+        &#9743; Pesan via WhatsApp
+      </button>
+      <button class="btn btn-primary" style="width:100%;margin-top:10px;" onclick="closePurchaseModal()">Batal</button>
+    </div>
+  </div>
+
+  <!-- Admin Link -->
+  <div class="admin-link">
+    <a href="admin.html" target="_blank">&#128274; Admin</a>
+  </div>
+
+  <!-- Lightbox for full image view -->
+  <div id="lightbox" class="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <button class="lightbox-nav prev" onclick="navigateLightbox(-1)">&#10094;</button>
+    <img id="lightbox-img" src="" alt="">
+    <button class="lightbox-nav next" onclick="navigateLightbox(1)">&#10095;</button>
+    <div class="lightbox-title" id="lightbox-title"></div>
+  </div>
+
+  <script>
+    const DB_KEY_PRODUCTS = 'pap_products';
+    let currentCategory = 'all';
+    let lightboxProducts = [];
+    let lightboxCurrentIndex = 0;
+    let lightboxImageIndex = 0;
+
+    function getProducts() {
+      return JSON.parse(localStorage.getItem(DB_KEY_PRODUCTS) || '[]');
+    }
+
+    function generateId() {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    function formatPrice(num) {
+      return 'Rp ' + num.toLocaleString('id-ID');
+    }
+
+    function getCategoryLabel(cat) {
+      const labels = { lukisan: 'Lukisan', interior: 'Desain Interior', bangunan: 'Desain Bangunan' };
+      return labels[cat] || cat;
+    }
+
+    function initSampleData() {
+      const products = getProducts();
+      if (products.length === 0) {
+        const sampleProducts = [
+          { id: generateId(), name: 'Lukisan Sunrise Bali', category: 'lukisan', price: 2500000, description: 'Lukisan cat minyak dengan pemandangan sunrise di pantai Bali. Ukuran 100x80cm.', images: [], floor_plan: null },
+          { id: generateId(), name: 'Desain Interior Rumah Minimalis', category: 'interior', price: 5000000, description: 'Desain interior rumah minimalis modern dengan konsep open space. Include 3D render dan denah lantai.', images: [], floor_plan: null },
+          { id: generateId(), name: 'Rancang Bangun Rumah 2 Lantai', category: 'bangunan', price: 15000000, description: 'Desain rumah 2 lantai dengan 4 kamar tidur, ruang tamu luas, dan carport. Tersedia denah 2D lengkap.', images: [], floor_plan: null },
+          { id: generateId(), name: 'Lukisan Abstrak Modern', category: 'lukisan', price: 1800000, description: 'Lukisan abstrak dengan warna-warna cerah untuk dekorasi ruang tamu. Cocok untuk interior modern.', images: [], floor_plan: null },
+          { id: generateId(), name: 'Desain Kantor Minimalis', category: 'interior', price: 7500000, description: 'Desain interior kantor dengan tema minimalis dan fungsional. Include denah layout ruang.', images: [], floor_plan: null }
+        ];
+        localStorage.setItem(DB_KEY_PRODUCTS, JSON.stringify(sampleProducts));
+      }
+      renderProducts();
+    }
+
+    function filterProducts(category) {
+      currentCategory = category;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if ((category === 'all' && btn.textContent === 'Semua') || btn.textContent.includes(getCategoryLabel(category))) {
+          btn.classList.add('active');
+        }
+      });
+      renderProducts();
+    }
+
+    function renderProducts() {
+      const products = getProducts();
+      const container = document.getElementById('product-list');
+
+      let filtered = products;
+      if (currentCategory !== 'all') {
+        filtered = products.filter(p => p.category === currentCategory);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state"><h3>Tidak ada produk</h3></div>';
+        return;
+      }
+
+      container.innerHTML = filtered.map((p, index) => {
+        const images = p.images || [];
+        const mainImage = images[0];
+        return `
+        <div class="product">
+          ${mainImage ? `
+            <div class="product-image-container" onclick="openLightbox(${index})" style="position:relative;cursor:pointer;">
+              <img src="${mainImage}" alt="${p.name}" title="Klik untuk lihat full">
+              ${images.length > 1 ? `<div class="image-count-badge">${images.length} foto</div>` : ''}
+            </div>
+          ` : '<div style="height:200px;background:#ddd;display:flex;align-items:center;justify-content:center;color:#999;">Tidak ada gambar</div>'}
+          ${images.length > 1 ? `<div class="image-thumbnails-row" style="display:flex;gap:5px;padding:5px;overflow-x:auto;">${images.slice(0, 4).map((img, i) => `<img src="${img}" onclick="event.stopPropagation();openLightboxAt(${index}, ${i})" style="width:50px;height:50px;object-fit:cover;border-radius:3px;cursor:pointer;border:2px solid ${i===0?'#3498db':'transparent'};">`).join('')}${images.length > 4 ? `<div style="width:50px;height:50px;background:#ddd;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:0.8em;color:#666;">+${images.length-4}</div>` : ''}</div>` : ''}
+          <div class="product-info">
+            <div class="product-name">${p.name}</div>
+            <div class="product-category">${getCategoryLabel(p.category)}</div>
+            <div class="product-price">${formatPrice(p.price)}</div>
+            <div class="product-desc">${p.description || '-'}</div>
+            ${p.floor_plan ? `<div class="floor-plan"><small>Gambar Denah 2D:</small><img src="${p.floor_plan}" alt="Denah 2D" onclick="event.stopPropagation();openLightboxFloorPlan('${p.floor_plan}')" style="cursor:pointer;" title="Klik untuk zoom"></div>` : ''}
+            <button class="btn btn-success" onclick="openPurchaseModal('${p.id}')" style="width:100%;margin-top:10px;">Pesan</button>
+          </div>
+        </div>
+      `}).join('');
+      lightboxProducts = filtered;
+    }
+
+    function openPurchaseModal(productId) {
+      const products = getProducts();
+      const product = products.find(p => p.id === productId);
+      if (!product) return;
+
+      document.getElementById('purchase-product-id').value = product.id;
+      document.getElementById('purchase-product-name').value = product.name;
+      document.getElementById('purchase-product-price').value = product.price;
+      document.getElementById('buyer-name').value = '';
+      document.getElementById('buyer-address').value = '';
+      document.getElementById('buyer-phone').value = '';
+      document.getElementById('purchase-quantity').value = '1';
+
+      updateSummary();
+      document.getElementById('purchase-modal').classList.add('active');
+    }
+
+    function closePurchaseModal() {
+      document.getElementById('purchase-modal').classList.remove('active');
+    }
+
+    function updateSummary() {
+      const name = document.getElementById('purchase-product-name').value;
+      const price = parseInt(document.getElementById('purchase-product-price').value);
+      const qty = parseInt(document.getElementById('purchase-quantity').value) || 1;
+
+      document.getElementById('summary-name').textContent = name;
+      document.getElementById('summary-price').textContent = formatPrice(price);
+      document.getElementById('summary-qty').textContent = qty + 'x';
+      document.getElementById('summary-total').textContent = formatPrice(price * qty);
+    }
+
+    function submitPurchase() {
+      const productId = document.getElementById('purchase-product-id').value;
+      const productName = document.getElementById('purchase-product-name').value;
+      const productPrice = parseInt(document.getElementById('purchase-product-price').value);
+      const buyerName = document.getElementById('buyer-name').value.trim();
+      const buyerAddress = document.getElementById('buyer-address').value.trim();
+      const buyerPhone = document.getElementById('buyer-phone').value.trim();
+      const quantity = parseInt(document.getElementById('purchase-quantity').value) || 1;
+      const total = productPrice * quantity;
+
+      if (!buyerName || !buyerAddress || !buyerPhone) {
+        alert('Lengkapi semua data!');
+        return;
+      }
+
+      const message = encodeURIComponent(
+        `Halo, saya ingin memesan:\n\n` +
+        `Produk: ${productName}\n` +
+        `Jumlah: ${quantity}x\n` +
+        `Total: ${formatPrice(total)}\n\n` +
+        `Data Pembeli:\n` +
+        `Nama: ${buyerName}\n` +
+        `Alamat: ${buyerAddress}\n` +
+        `HP/WA: ${buyerPhone}\n\n` +
+        `Mohon info pembayaran selanjutnya. Terima kasih!`
+      );
+
+      window.open(`https://wa.me/6281234567890?text=${message}`, '_blank');
+      closePurchaseModal();
+    }
+
+    document.getElementById('purchase-quantity').addEventListener('input', updateSummary);
+
+    // Lightbox functions
+    function openLightbox(index) {
+      lightboxCurrentIndex = index;
+      const product = lightboxProducts[index];
+      if (!product || !product.image) return;
+
+      document.getElementById('lightbox-img').src = product.image;
+      document.getElementById('lightbox-title').textContent = product.name;
+      document.getElementById('lightbox').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      lightboxImageIndex = 0;
+    }
+
+    function openLightboxAt(productIndex, imageIndex) {
+      lightboxCurrentIndex = productIndex;
+      lightboxImageIndex = imageIndex;
+      const product = lightboxProducts[productIndex];
+      if (!product || !product.images || !product.images[imageIndex]) return;
+
+      document.getElementById('lightbox-img').src = product.images[imageIndex];
+      document.getElementById('lightbox-title').textContent = `${product.name} (${imageIndex + 1}/${product.images.length})`;
+      document.getElementById('lightbox').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function openLightboxFloorPlan(src) {
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-title').textContent = 'Gambar Denah 2D';
+      document.getElementById('lightbox').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      lightboxImageIndex = 0;
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    function navigateLightbox(direction) {
+      const product = lightboxProducts[lightboxCurrentIndex];
+      if (!product || !product.images) return;
+
+      lightboxImageIndex += direction;
+      if (lightboxImageIndex < 0) lightboxImageIndex = product.images.length - 1;
+      if (lightboxImageIndex >= product.images.length) lightboxImageIndex = 0;
+
+      document.getElementById('lightbox-img').src = product.images[lightboxImageIndex];
+      document.getElementById('lightbox-title').textContent = `${product.name} (${lightboxImageIndex + 1}/${product.images.length})`;
+    }
+
+    // Close lightbox with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') navigateLightbox(-1);
+      if (e.key === 'ArrowRight') navigateLightbox(1);
+    });
+
+    // Close lightbox when clicking outside image
+    document.getElementById('lightbox').addEventListener('click', function(e) {
+      if (e.target.id === 'lightbox') closeLightbox();
+    });
+
+    window.onload = initSampleData;
+  </script>
+</body>
+</html>
